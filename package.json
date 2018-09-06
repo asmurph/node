@@ -4,6 +4,7 @@
   "description": "writing first node app",
   "main": "server.js",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.14.0",
     "mssql": "^4.1.0"

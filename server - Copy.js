@@ -1,21 +1,9 @@
 var express =require('express');
-//Initialize app with Express Web Framework
 var app = express();
-var _bodyParserPackage = require("body-parser")
-//var cors = require("cors");
-//To parse result in json format  
-app.use(_bodyParserPackage.json());
-
-//Here we will enable CORS, so that we can access api on cross domain.  
-app.use(function (req, res, next) {  
-    res.header("Access-Control-Allow-Origin", "*");  
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");  
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, contentType,Content-Type, Accept, Authorization");  
-    next();  
-});  
+var cors = require("cors");
 
 
-//app.use(cors());
+app.use(cors());
 var port=process.env.PORT || 1300;
 var _sqlPackage = require('mssql'); // MS Sql Server client
 
