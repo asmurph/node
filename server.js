@@ -4,7 +4,7 @@ var cors = require("cors");
 
 
 app.use(cors());
-var port=process.env.PORT || 81;
+var port=process.env.PORT || 1300;
 var _sqlPackage = require('mssql'); // MS Sql Server client
 
 app.use(express.static(__dirname + '/public'));
@@ -48,7 +48,7 @@ var QueryToExecuteInDatabase = function (response, strQuery) {
  }  
   
 //GET API  
-app.get('/api/region', function(_req ,_res){  
+app.get('/api/region', cors(), function(_req ,_res){  
     var Sqlquery = "select * from region";  
     QueryToExecuteInDatabase(_res, Sqlquery);  
 });  
