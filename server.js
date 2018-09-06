@@ -48,7 +48,7 @@ var QueryToExecuteInDatabase = function (response, strQuery) {
  }  
   
 //GET API  
-app.get("/api/region", function(_req ,_res){  
+app.get('/api/region', function(_req ,_res){  
     var Sqlquery = "select * from region";  
     QueryToExecuteInDatabase(_res, Sqlquery);  
 });  
