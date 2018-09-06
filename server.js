@@ -2,7 +2,7 @@ var express =require('express');
 //Initialize app with Express Web Framework
 var app = express();
 var _bodyParserPackage = require("body-parser")
-//var cors = require("cors");
+var cors = require("cors");
 //To parse result in json format  
 app.use(_bodyParserPackage.json());
 
