@@ -62,7 +62,36 @@ var QueryToExecuteInDatabase = function (response, strQuery) {
  }  
   
   function lookupRegion(req, res)  {
-  
+    //close sql connection before creating an connection otherwise you will get an error if connection already exists.  
+    _sqlPackage.close();  
+       //Now connect your sql connection  
+     // Create connection instance
+     var conn = new sql.ConnectionPool(sqlconfig);
+     conn.connect()
+     // Successfull connection
+     .then(function () {
+    
+       // Create request instance, passing in connection instance
+       var req = new sql.Request(conn);
+    
+       // Call mssql's query method passing in params
+       req.query("SELECT * FROM [Region]")
+       .then(function (recordset) {
+         console.log(recordset);
+         conn.close();
+       })
+       // Handle sql statement execution errors
+       .catch(function (err) {
+         console.log(err);
+         conn.close();
+       })
+    
+     })
+     // Handle connection errors
+     .catch(function (err) {
+       console.log(err);
+       conn.close();
+     });
       
   }
   
@@ -86,7 +115,7 @@ app.get('/region', cors(), function(req ,res){
 });  
 
 
-regionRouter.get('/:id', lookupRegion, function(req, res){
+regionRouter.get('/', lookupRegion, function(req, res){
       res.json(req, region);
 });
 app.use('/regions', regionRouter);
