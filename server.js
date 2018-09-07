@@ -35,50 +35,42 @@ var dbConfig = {
       }
 };
 
-//Function to connect to database and execute query
-var  executeQuery = function(res, query){             
-     sql.connect(dbConfig, function (err) {
-         if (err) {   
-                     console.log("Error while connecting database :- " + err);
-                     res.send(err);
-                  }
-                  else {
-                         // create Request object
-                         var request = new sql.Request();
-                         // query to the database
-                         request.query(query, function (err, res) {
-                           if (err) {
-                                      console.log("Error while querying database :- " + err);
-                                      res.send(err);
-                                     }
-                                     else {
-                                       res.send(res);
-                                            }
-                               });
-                       }
-      });           
-}
+// This function connects to a SQL server, executes a SELECT statement,
+// and displays the results in the console.
+function getCustomers() {
+    // Create connection instance
+    var conn = new sql.ConnectionPool(dbConfig);
+   
+    conn.connect()
+    // Successfull connection
+    .then(function () {
+   
+      // Create request instance, passing in connection instance
+      var req = new sql.Request(conn);
+   
+      // Call mssql's query method passing in params
+      req.query("SELECT * FROM [Region]")
+      .then(function (recordset) {
+        console.log(recordset);
+        conn.close();
+      })
+      // Handle sql statement execution errors
+      .catch(function (err) {
+        console.log(err);
+        conn.close();
+      })
+   
+    })
+    // Handle connection errors
+    .catch(function (err) {
+      console.log(err);
+      conn.close();
+    });
+   }
 
 //GET API
 app.get("/api/user", function(req , res){
-                var query = "select * from [region]";
-                executeQuery (res, query);
+                //var query = "select * from [region]";
+                getCustomers (res, query);
 });
 
-//POST API
- app.post("/api/user", function(req , res){
-                var query = "INSERT INTO [user] (Name,Email,Password) VALUES (req.body.Name,req.body.Email,req.body.Password”);
-                executeQuery (res, query);
-});
-
-//PUT API
- app.put("/api/user/:id", function(req , res){
-                var query = "UPDATE [user] SET Name= " + req.body.Name  +  " , Email=  " + req.body.Email + "  WHERE Id= " + req.params.id;
-                executeQuery (res, query);
-});
-
-// DELETE API
- app.delete("/api/user /:id", function(req , res){
-                var query = "DELETE FROM [user] WHERE Id=" + req.params.id;
-                executeQuery (res, query);
-});
