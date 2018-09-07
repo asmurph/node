@@ -1,28 +1,29 @@
-var express =require('express');
-//Initialize app with Express Web Framework
-var app = express();
-var _bodyParserPackage = require("body-parser")
+//Initiallising node modules
+var express = require("express");
+var bodyParser = require("body-parser");
+var sql = require("mssql");
+var app = express(); 
 
-var cors = require("cors");
-//To parse result in json format  
-app.use(_bodyParserPackage.json());
+// Body Parser Middleware
+app.use(bodyParser.json()); 
 
-app.use(cors());
-//Here we will enable CORS, so that we can access api on cross domain.  
-app.use(function (req, res, next) {  
-    res.header("Access-Control-Allow-Origin", "*");  
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");  
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, contentType,Content-Type, Accept, Authorization");  
-    next();  
-});  
+//CORS Middleware
+app.use(function (req, res, next) {
+    //Enabling CORS 
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, contentType,Content-Type, Accept, Authorization");
+    next();
+});
 
+//Setting up server
+ var server = app.listen(process.env.PORT || 8080, function () {
+    var port = server.address().port;
+    console.log("App now running on port", port);
+ });
 
-//app.use(cors());
-var port=process.env.PORT || 1300;
-var _sqlPackage = require('mssql'); // MS Sql Server client
-
-app.use(express.static(__dirname + '/public'));
-var sqlconfig = {
+//Initiallising connection string
+var dbConfig = {
     server: "mappers.database.windows.net", // Use your SQL server name
     database: "Appointments", // Database to connect to
     user: "smurph", // Use your username
@@ -32,91 +33,52 @@ var sqlconfig = {
     options: {
           encrypt: true
       }
-   };
- 
-//Function to connect to database and execute query  
-var QueryToExecuteInDatabase = function (response, strQuery) {  
-    //close sql connection before creating an connection otherwise you will get an error if connection already exists.  
-    _sqlPackage.close();  
-    //Now connect your sql connection  
-    _sqlPackage.connect(sqlconfig, function (error) {  
-        if (error) {  
-            console.log("Error while connecting to database :- " + error);  
-            response.send(error);  
-        }  
-        else {  
-            //let's create a request for sql object  
-            var request = new _sqlPackage.Request();  
-            //Query to run in our database  
-            request.query(strQuery, function (error, responseResult) {  
-                if (error) {  
-                    console.log("Error while connecting to database:- " + error);  
-                    response.send(error);  
-                }  
-                else {  
-                    response.send(responseResult);  
-                }  
-            });  
-        }  
-    });             
- }  
-  
-  function lookupRegion(req, res)  {
-    //close sql connection before creating an connection otherwise you will get an error if connection already exists.  
-    _sqlPackage.close();  
-       //Now connect your sql connection  
-     // Create connection instance
-     var conn = new sql.ConnectionPool(sqlconfig);
-     conn.connect()
-     // Successfull connection
-     .then(function () {
-    
-       // Create request instance, passing in connection instance
-       var req = new sql.Request(conn);
-    
-       // Call mssql's query method passing in params
-       req.query("SELECT * FROM [Region]")
-       .then(function (recordset) {
-         console.log(recordset);
-         conn.close();
-       })
-       // Handle sql statement execution errors
-       .catch(function (err) {
-         console.log(err);
-         conn.close();
-       })
-    
-     })
-     // Handle connection errors
-     .catch(function (err) {
-       console.log(err);
-       conn.close();
-     });
-      
-  }
-  
+};
 
+//Function to connect to database and execute query
+var  executeQuery = function(res, query){             
+     sql.connect(dbConfig, function (err) {
+         if (err) {   
+                     console.log("Error while connecting database :- " + err);
+                     res.send(err);
+                  }
+                  else {
+                         // create Request object
+                         var request = new sql.Request();
+                         // query to the database
+                         request.query(query, function (err, res) {
+                           if (err) {
+                                      console.log("Error while querying database :- " + err);
+                                      res.send(err);
+                                     }
+                                     else {
+                                       res.send(res);
+                                            }
+                               });
+                       }
+      });           
+}
 
-var regionRouter = express.Router();
-regionRouter.get('/', function(req, res) {});
-
-app.get('/',function(req,res){
-console.log('hello from server');
- res.render('./public/index.html');
+//GET API
+app.get("/api/user", function(req , res){
+                var query = "select * from [region]";
+                executeQuery (res, query);
 });
 
-app.listen(port);
-console.log('Server Listening at port'+port);
-
-//GET API  
-app.get('/region', cors(), function(req ,res){  
-    var Sqlquery = "select * from region";  
-    QueryToExecuteInDatabase(res, Sqlquery);  
-});  
-
-
-regionRouter.get('/', lookupRegion, function(req, res){
-      res.json(req, region);
+//POST API
+ app.post("/api/user", function(req , res){
+                var query = "INSERT INTO [user] (Name,Email,Password) VALUES (req.body.Name,req.body.Email,req.body.Password”);
+                executeQuery (res, query);
 });
-app.use('/regions', regionRouter);
-module.exports = app;
+
+//PUT API
+ app.put("/api/user/:id", function(req , res){
+                var query = "UPDATE [user] SET Name= " + req.body.Name  +  " , Email=  " + req.body.Email + "  WHERE Id= " + req.params.id;
+                executeQuery (res, query);
+});
+
+// DELETE API
+ app.delete("/api/user /:id", function(req , res){
+                var query = "DELETE FROM [user] WHERE Id=" + req.params.id;
+                executeQuery (res, query);
+});
