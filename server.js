@@ -7,6 +7,7 @@ var cors = require("cors");
 //To parse result in json format  
 app.use(_bodyParserPackage.json());
 
+app.use(cors());
 //Here we will enable CORS, so that we can access api on cross domain.  
 app.use(function (req, res, next) {  
     res.header("Access-Control-Allow-Origin", "*");  
