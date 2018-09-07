@@ -76,7 +76,7 @@ var QueryToExecuteInDatabase = function (response, strQuery) {
             var request = new _sqlPackage.Request();  
             //Query to run in our database
               
-            request.query('SELECT * FROM dbo.Region', function (err, recordset) { 
+            request.query('SELECT * FROM dbo.Region', function (req, recordset) { 
                 if (error) 
 				{  
                     console.log("Error while connecting to database:- " + error);  
@@ -95,11 +95,7 @@ var QueryToExecuteInDatabase = function (response, strQuery) {
 	
   }
   
-//GET API  
-app.get('/api/region', cors(), function(_req ,_res){  
-    var Sqlquery = "select * from region";  
-    QueryToExecuteInDatabase(_res, Sqlquery);  
-});  
+
 
 var regionRouter = express.Router();
 regionRouter.get('/', function(req, res) {});
