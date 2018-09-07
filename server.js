@@ -109,6 +109,13 @@ console.log('hello from server');
 app.listen(port);
 console.log('Server Listening at port'+port);
 
+//GET API  
+app.get('/region', cors(), function(req ,res){  
+    var Sqlquery = "select * from region";  
+    QueryToExecuteInDatabase(_res, Sqlquery);  
+});  
+
+
 regionRouter.get('/:id', lookupRegion, function(req, res){
       res.json(req, region);
 });
