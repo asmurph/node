@@ -60,6 +60,41 @@ var QueryToExecuteInDatabase = function (response, strQuery) {
     });             
  }  
   
+  function lookupRegion(req, res)  {
+  
+     //close sql connection before creating an connection otherwise you will get an error if connection already exists.  
+    _sqlPackage.close();  
+    //Now connect your sql connection  
+    _sqlPackage.connect(sqlconfig, function (error) {  
+        if (error) {  
+            console.log("Error while connecting to database :- " + error);  
+            response.send(error);  
+        }  
+        else 
+		{  
+            //let's create a request for sql object  
+            var request = new _sqlPackage.Request();  
+            //Query to run in our database
+              
+            request.query('SELECT * FROM dbo.Region', function (err, recordset) { 
+                if (error) 
+				{  
+                    console.log("Error while connecting to database:- " + error);  
+                    response.send(error);  
+                } 
+
+				
+                else
+				{  
+                    // send data as a response
+                    res.send(recordset); 
+                }  
+            });  
+        }  
+    }); 
+	
+  }
+  
 //GET API  
 app.get('/api/region', cors(), function(_req ,_res){  
     var Sqlquery = "select * from region";  
@@ -67,14 +102,7 @@ app.get('/api/region', cors(), function(_req ,_res){
 });  
 
 var regionRouter = express.Router();
-
-regionRouter.get('/', function(req, res){
-      var sqlQuerie = "select * from region"; 
-      QueryToExecuteInDatabase(res, sqlQuerie); 
-});
-
-app.use('/regions', regionRouter);
-
+regionRouter.get('/', function(req, res) {});
 
 app.get('/',function(req,res){
 console.log('hello from server');
@@ -83,4 +111,9 @@ console.log('hello from server');
 
 app.listen(port);
 console.log('Server Listening at port'+port);
+
+regionRouter.get('/:id', lookupRegion, function(req, res){
+      res.json(req, region);
+});
+app.use('/regions', regionRouter);
 module.exports = app;
